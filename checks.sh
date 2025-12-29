@@ -4,20 +4,15 @@
 
 CHECKS_IS_SUDO(){
 	TL=1 # Set indent level
-	{
-		HELPERS_FANCY_PRINT "checking to see if has root perms"
-		if (( EUID != 0 )); then
-		    TL=2 # Set indent level
-		    HELPERS_FANCY_PRINT "This script must be run as root or with sudo!"
-		    exit 1
-		else
-		    TL=2 # Set indent level
-		    HELPERS_FANCY_PRINT "correct perms detected"
-		fi
-	}
-	{
-		# other code 
-	}
+	HELPERS_FANCY_PRINT "checking to see if has root perms"
+	if (( EUID != 0 )); then
+	    TL=2 # Set indent level
+	    HELPERS_FANCY_PRINT "This script must be run as root or with sudo!"
+	    exit 1
+	else
+	    TL=2 # Set indent level
+	    HELPERS_FANCY_PRINT "correct perms detected"
+	fi
 	TL=0;
 }
 
