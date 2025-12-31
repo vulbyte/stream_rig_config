@@ -8,7 +8,7 @@
 	imports =
 	[ # Include the results of the hardware scan.
 		./hardware-configuration.nix
-		./flakes/flatpaks.nix	
+		#./flakes/flatpaks.nix	
 	];
 
 	# Bootloader.
@@ -75,13 +75,51 @@
 		isNormalUser = true;
 		description = "vulbyte";
 		extraGroups = [ "networkmanager" "wheel" ];
-		packages = with pkgs; [
-			kdePackages.kate
-			obs-studio
-			qpwgraph
-			neovim
-		];
+		packages = with pkgs; [];
 	};
+
+	programs.firefox = {
+		enable = true;
+		policies = {
+			ExtensionSettings = {
+				# Bitwarden
+				"{446900e4-71c2-419f-a6a7-df9c091e268b}" = {
+					install_url = "https://addons.mozilla.org/firefox/downloads/latest/bitwarden-password-manager/latest.xpi";
+					installation_mode = "force_installed";
+				};
+				# Sponser Block
+				"sponsorBlocker@ajay.app" = {
+					install_url = "https://addons.mozilla.org/en-CA/firefox/addon/sponsorblock/";
+					installation_mode = "force_isntalled";
+				};
+				# uBlock Origin
+				"uBlock0@raymondhill.net" = {
+					install_url = "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi";
+					installation_mode = "force_installed";
+				};
+				# Add more extensions here using the same format
+			};
+		};
+	};
+
+	# Allow unfree packages
+	nixpkgs.config.allowUnfree = true;
+
+	# List packages installed in system profile. To search, run:
+	# $ nix search wget
+	environment.systemPackages = with pkgs; [
+		discord # for collabs and stuff
+		fastfetch
+		git
+		hyfetch # depends on fastfetch
+		kdePackages.kate
+		neovim
+		obs-studio
+		qpwgraph
+		stow # used to propigate config files
+		vim     
+		#  wget
+	];
 
 	# plugins = with pkgs.obs-studio-plugins; [
 	# wlrobs
@@ -92,24 +130,6 @@
 	# obs-vkcapture
 	# ];
 	# };
-
-
-	# Install firefox.
-	programs.firefox.enable = true;
-
-	# Allow unfree packages
-	nixpkgs.config.allowUnfree = true;
-
-	# List packages installed in system profile. To search, run:
-	# $ nix search wget
-	environment.systemPackages = with pkgs; [
-		fastfetch
-		hyfetch
-		stow # used to propigate config files
-		git
-		vim     
-		#  wget
-	];
 
 
 	# Some programs need SUID wrappers, can be configured further or are

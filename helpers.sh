@@ -2,6 +2,38 @@
 
 # PREFIX ALL FUNCTIONS WITH "HELPER_" TO HELP WITH DEBUGGING
 
+
+
+HELPER_GET_INPUT_AND_VERIFY(){ # prompt $1
+	# HOW TO CALL IT:
+	# user_name=$(HELPER_GET_INPUT_AND_VERIFY "Enter your username")
+	# echo "Welcome, $user_name"
+	local can_continue=false
+	local input=""
+	local verify=""
+
+	while [[ "$can_continue" != "true" ]]; do
+	# Get input
+	# Use -p with read to show the prompt on the same line
+	read -p "$1: " input
+
+	# Validate
+	read -p "You entered '${input}', is this right? (y/n): " verify
+
+	# Check verification
+	if [[ "$verify" == "y" ]]; then
+		can_continue=true
+		else
+		echo -e "Information incorrect, please try again or Ctrl+C to cancel\n"
+	fi
+	done
+
+	# "Return" the value by echoing it
+	echo "$input"
+}
+
+
+
 HELPERS_FANCY_PRINT(){
     local tabs_to_insert=""
     if (( TL <= 0 )); then 
@@ -16,28 +48,9 @@ HELPERS_FANCY_PRINT(){
 }
 
 HELPERS_OPEN_URL(){
-	#!/bin/bash
-	URL=$1
+	xdg-open $1;
+} 
 
-	# Try various commands based on the operating system
-	if command -v xdg-open >/dev/null; then
-	    xdg-open "$URL" &
-	elif command -v open >/dev/null; then
-	    open "$URL" &
-	elif command -v start >/dev/null; then
-	    start "$URL" &
-	elif command -v sensible-browser >/dev/null; then
-	    sensible-browser "$URL" &
-	elif command -v x-www-browser >/dev/null; then
-	    x-www-browser "$URL" &
-	elif command -v firefox >/dev/null; then
-	    firefox "$URL" &
-	elif command -v google-chrome >/dev/null; then
-	    google-chrome "$URL" &
-	else
-	    echo "Can't find a command to open the browser"
-	fi
-}
 
 HELPERS_IS_PROGRAM_INSTALLED(){
 	# HELPERS_IS_PROGRAM_INSTALLED ssh-keygen

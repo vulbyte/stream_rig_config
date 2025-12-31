@@ -8,53 +8,46 @@
 
 # INIT
 TL=0  # Tab level
-
-# HELPERS / imports
-source "./helpers.sh";
-source "./checks.sh";
+USER=$(logname);
+FOLDER_NAME="stream_rig_config"; 
+SOURCE_LOCATION="/home/${USER}/${FOLDER_NAME}";
+CONFIG_LOCATION="/etc/nixos";
 
 
 
 # AUTH && VERIFY
-HELPERS_FANCY_PRINT "checking the needed auth and verification";
 TL=1 # Set indent level
-HELPERS_FANCY_PRINT "checking to see if has root perms"
+echo "checking to see if has root perms"
 if (( EUID != 0 )); then
-    TL=2 # Set indent level
-    HELPERS_FANCY_PRINT "This script must be run as root or with sudo!"
+    echo "run as sudo!"
     exit 1
 else
-    TL=2 # Set indent level
-    HELPERS_FANCY_PRINT "correct perms detected"
+    echo "user is not root, continuing";
 fi
-TL=0;
+
+
+
+# HELPERS / imports
+source "${SOURCE_LOCATION}/helpers.sh"
+source "${SOURCE_LOCATION}/checks.sh"
+HELPERS_FANCY_PRINT "checking the needed auth and verification";
 
 
 
 # RUN
 HELPERS_FANCY_PRINT "all prechecks verified, installing the config";
 TL=1;
-HELPRS_FANCY_PRINT "attempting to move main config files into ${CONFIG_LOCATION}";
+HELPERS_FANCY_PRINT "attempting to move main config files into ${CONFIG_LOCATION}";
 TL=2
-CONFIG_LOCATION="/etc/nixos"
-HELPERS_FANCY_PRINT ""
-for file in "./nix_config_files"/*; do
-	rm -rf /etc/nixos/ 	# clear the dir
-	# GET FILES AND PUT IN RIGHT SPOT
-	cp file ${CONFIG_LOCATION}/
-done
-TL=1
+rm -rf /etc/nixos/ 	# clear the dir
+# 1. Clear and RECREATE the base directory
+rm -rf "$CONFIG_LOCATION"
+mkdir -p "$CONFIG_LOCATION"
 
-HELPRS_FANCY_PRINT "attempting to move flakes into ${CONFIG_LOCATION}";
-TL=2
-FLAKE_LOCATION="/etc/nixos/flakes"
-HELPERS_FANCY_PRINT ""
-for file in "./nix_config_files/flakes"/*; do
-	rm -rf /etc/nixos/ 	# clear the dir
-	# GET FILES AND PUT IN RIGHT SPOT
-	cp file ${FLAKE_LOCATION}/
+HELPERS_FANCY_PRINT "Moving main config files..."
+for file in "${SOURCE_LOCATION}/nix_config"/*; do
+    sudo cp -r "$file" "$CONFIG_LOCATION/"
 done
-TL=1
 
 HELPERS_FANCY_PRINT "files in location, all checks passed, attemptnig to build os";
-#nixos-switch build
+nixos-rebuild switch
