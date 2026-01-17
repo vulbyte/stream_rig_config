@@ -10,8 +10,6 @@
 TL=0  # Tab level
 USER=$(logname);
 FOLDER_NAME="stream_rig_config"; 
-SOURCE_LOCATION="/home/${USER}/${FOLDER_NAME}";
-CONFIG_LOCATION="/etc/nixos";
 
 
 
@@ -28,9 +26,9 @@ fi
 
 
 # HELPERS / imports
-source "${SOURCE_LOCATION}/helpers.sh"
-source "${SOURCE_LOCATION}/checks.sh"
-HELPERS_FANCY_PRINT "checking the needed auth and verification";
+source "./helpers.sh"
+source "./checks.sh"
+# HELPERS_FANCY_PRINT "checking the needed auth and verification";
 
 
 
@@ -39,15 +37,22 @@ HELPERS_FANCY_PRINT "all prechecks verified, installing the config";
 TL=1;
 HELPERS_FANCY_PRINT "attempting to move main config files into ${CONFIG_LOCATION}";
 TL=2
-rm -rf /etc/nixos/ 	# clear the dir
-# 1. Clear and RECREATE the base directory
+
+CONFIG_LOCATION="/etc/nixos";
+rm -rf "$CONFIG_LOCATION"
 rm -rf "$CONFIG_LOCATION"
 mkdir -p "$CONFIG_LOCATION"
 
+SOURCE_LOCATION="/home/${USER}/${FOLDER_NAME}";
 HELPERS_FANCY_PRINT "Moving main config files..."
-for file in "${SOURCE_LOCATION}/nix_config"/*; do
-    sudo cp -r "$file" "$CONFIG_LOCATION/"
-done
+
+# cp "~/stream_config_files/nix_config_files/configuration.nix" ${CONFIG_LOCATION}
+# cp "~/stream_config_files/nix_config_files/hardware-configuration.nix" ${CONFIG_LOCATION}
+cp "/home/vulbyte/stream_rig_config/nix_config_files/configuration.nix" ${CONFIG_LOCATION}
+cp "/home/vulbyte/stream_rig_config/nix_config_files/hardware-configuration.nix" ${CONFIG_LOCATION}
+cp "/home/vulbyte/stream_rig_config/nix_config_files/smb-secrets.nix" ${CONFIG_LOCATION}
+
+
 
 HELPERS_FANCY_PRINT "files in location, all checks passed, attemptnig to build os";
 nixos-rebuild switch

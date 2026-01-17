@@ -11,6 +11,14 @@
 		#./flakes/flatpaks.nix	
 	];
 
+	# SMB SERVER STUFF
+	services.gvfs.enable = true;
+	services.avahi.enable = true;
+	services.avahi.nssmdns4 = true; # Helps with .local mDNS names
+
+	# users.users.vulbyte.extraGroups = [ "networkmanager" "wheel" "video" "render" ]; # NEW
+  	#boot.kernelParams = [ "i915.enable_guc=3" ];
+
 	# Bootloader.
 	boot.loader.systemd-boot.enable = true;
 	boot.loader.efi.canTouchEfiVariables = true;
@@ -67,6 +75,16 @@
 		#media-session.enable = true;
 	};
 
+# 2. Define the permanent mount
+	fileSystems."/mnt/my_share" = {
+		device = "//192.168.1.178/vulbytesShare";
+		fsType = "cifs";
+		options = let
+		# These flags prevent the system from hanging if the server is offline
+		automount_opts = "x-systemd.automount,noauto,x-systemd.idle-timeout=60,x-systemd.device-timeout=5s,x-systemd.mount-timeout=5s";
+		in ["${automount_opts},credentials=/etc/nixos/smb-secrets.nix,uid=1000,gid=100,vers=3.0"];
+	};
+
 	# Enable touchpad support (enabled default in most desktopManager).
 	# services.xserver.libinput.enable = true;
 
@@ -108,28 +126,67 @@
 	# List packages installed in system profile. To search, run:
 	# $ nix search wget
 	environment.systemPackages = with pkgs; [
+		cifs-utils 
 		discord # for collabs and stuff
 		fastfetch
+		freetype
 		git
+		harfbuzz
 		hyfetch # depends on fastfetch
+		lact
 		kdePackages.kate
+		mpv
 		neovim
 		obs-studio
+		pciutils 
 		qpwgraph
 		stow # used to propigate config files
 		vim     
-		#  wget
+		#  wget wineWowPackages.stable
+		# support 32-bit only
+		wine
+		# support 64-bit only
+		(wine.override { wineBuild = "wine64"; })
+		# support 64-bit only
+		wine64
+		# wine-staging (version with experimental features)
+		wineWowPackages.staging
+		# winetricks (all versions)
+		winetricks
+		# native wayland support (unstable)
+		wineWowPackages.waylandFull
 	];
 
-	# plugins = with pkgs.obs-studio-plugins; [
-	# wlrobs
-	# obs-backgroundremoval
-	# obs-pipewire-audio-capture
-	# obs-vaapi #optional AMD hardware acceleration
-	# obs-gstreamer
-	# obs-vkcapture
-	# ];
-	# };
+	systemd.services.lact = {
+		description = "intelGPU Control Daemon";
+		after = ["multi-user.target"];
+		wantedBy = ["multi-user.target"];
+		serviceConfig = {
+			ExecStart = "${pkgs.lact}/bin/lact daemon";
+		};
+		enable = true;
+	};
+
+	programs.obs-studio = {
+		enable = true;
+
+		# optional Nvidia hardware acceleration
+		package = (
+			pkgs.obs-studio.override {
+				cudaSupport = true;
+			}
+		);
+
+		plugins = with pkgs.obs-studio-plugins; [
+			wlrobs
+			obs-backgroundremoval
+			obs-pipewire-audio-capture
+			# obs-vaapi #optional AMD hardware acceleration
+			obs-gstreamer
+			obs-vkcapture
+		];
+	};
+
 
 
 	# Some programs need SUID wrappers, can be configured further or are

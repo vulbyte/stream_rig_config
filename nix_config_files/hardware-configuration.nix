@@ -31,26 +31,27 @@
     ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+
+  services.xserver.videoDrivers = [ "intel" ];
+
+  hardware.enableAllFirmware = true; #new
   hardware.cpu.intel.updateMicrocode = true; #lib.mkDefault;
-
-  services.xserver.videoDrivers = [ "modesetting" ];
-
   hardware.graphics = {
     enable = true;
     extraPackages = with pkgs; [
       # optional tooling {
       intel-compute-runtime # OpenCL (NEO) + level ero for Arc/Xe
-      # }
       # required fro modern intel GPUs {
       intel-media-driver # VA-API (iHD) userspace
       vpl-gpu-rt # openVPL (QSV) runtime
+      # onevpl-intel-gpu # outdated
       # }
     ];
   };
-
   environment.sessionVariables = {
     LIBVA_DRIVER_NAME = "iHD"; # prefer modern iHD backend
   };
+  #services.xserver.extraGroups = ["video"]; #POTENTIAL
 
-  #boot.kernelParams = [ "i915.enable_guc=3" ];
+  boot.kernelParams = [ "i915.force_probe=e20b" "xe.force_probe=e20b" ]; # NEW
 }
