@@ -13,8 +13,14 @@
 
 	# SMB SERVER STUFF
 	services.gvfs.enable = true;
-	services.avahi.enable = true;
-	services.avahi.nssmdns4 = true; # Helps with .local mDNS names
+	services.avahi = { # for airplay capture and smb
+	  enable = true;
+	  nssmdns4 = true; # Allows software to find .local devices
+	  publish = {
+	    enable = true;
+	    userServices = true;
+	  };
+	};
 
 	# users.users.vulbyte.extraGroups = [ "networkmanager" "wheel" "video" "render" ]; # NEW
   	#boot.kernelParams = [ "i915.enable_guc=3" ];
@@ -27,7 +33,11 @@
 	boot.kernelPackages = pkgs.linuxPackages_latest;
 
 	networking.hostName = "nixos"; # Define your hostname.
-	# networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+	#networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+	boot.kernelModules = [
+	# get wifi drivers to work for Realtek Wifi RTL8852CE
+	"rtw89_8852ce"
+	];
 
 	# Configure network proxy if necessary
 	# networking.proxy.default = "http://user:password@proxy:port/";
@@ -47,8 +57,25 @@
 	services.xserver.enable = true;
 
 	# Enable the KDE Plasma Desktop Environment.
-	services.displayManager.sddm.enable = true;
 	services.desktopManager.plasma6.enable = true;
+
+
+# KEYBOARD 
+# This enables the input method framework for the system
+i18n.inputMethod = {
+  type = "maliit";
+};
+services.displayManager.sddm = {
+  enable = true;
+  wayland.enable = true; # Recommended for Plasma 6
+  settings = {
+    General = {
+      InputMethod = "qtvirtualkeyboard";
+    };
+  };
+};
+# This helps if SDDM is defaulting to a theme that doesn't support the keyboard toggle
+services.displayManager.sddm.theme = "breeze";
 
 	# Configure keymap in X11
 	services.xserver.xkb = {
@@ -60,7 +87,7 @@
 	services.printing.enable = true;
 
 	# Enable sound with pipewire.
-	services.pulseaudio.enable = false;
+	# services.pulseaudio.enable = false;
 	security.rtkit.enable = true;
 	services.pipewire = {
 		enable = true;
@@ -68,14 +95,14 @@
 		alsa.support32Bit = true;
 		pulse.enable = true;
 		# If you want to use JACK applications, uncomment this
-		#jack.enable = true;
+		jack.enable = true;
 
 		# use the example session manager (no others are packaged yet so this is enabled by default,
 		# no need to redefine it in your config for now)
 		#media-session.enable = true;
 	};
 
-# 2. Define the permanent mount
+	# Define the permanent mount
 	fileSystems."/mnt/my_share" = {
 		device = "//192.168.1.178/vulbytesShare";
 		fsType = "cifs";
@@ -108,7 +135,7 @@
 				# Sponser Block
 				"sponsorBlocker@ajay.app" = {
 					install_url = "https://addons.mozilla.org/en-CA/firefox/addon/sponsorblock/";
-					installation_mode = "force_isntalled";
+					installation_mode = "force_installed";
 				};
 				# uBlock Origin
 				"uBlock0@raymondhill.net" = {
@@ -126,21 +153,52 @@
 	# List packages installed in system profile. To search, run:
 	# $ nix search wget
 	environment.systemPackages = with pkgs; [
+	  	#onscreen kbd testing
+		onboard
+		  # For Mobile/Touch Interfaces (Phosh, Plasma Mobile)
+		kdePackages.qtvirtualkeyboard  # This is the critical one for SDDM
+		maliit-keyboard
+		maliit-framework
+
+		    # for obs airplay
+		    clang 
+		    pkg-config 
+		    openssl      # Replaces libssl-dev
+		    ffmpeg       # Replaces libswscale, libavcodec, libavformat, libavutil, libswresample
+		    avahi        # Replaces libavahi-compat-libdnssd-dev
+		    libplist     # Replaces libplist-dev
+		    fdk_aac      # Replaces libfdk-aac-dev
+
+
+
 		cifs-utils 
 		discord # for collabs and stuff
 		fastfetch
 		freetype
 		git
+		glibc
 		harfbuzz
 		hyfetch # depends on fastfetch
 		lact
 		kdePackages.kate
+		kdePackages.qtvirtualkeyboard
+		maliit-keyboard
+		maliit-framework
 		mpv
 		neovim
 		obs-studio
 		pciutils 
 		qpwgraph
 		stow # used to propigate config files
+		steam-run # used to launch some applications like veado
+		(makeDesktopItem {
+			name = "veadotube-mini";
+			desktopName = "veadotube mini";
+			exec = "steam-run /home/vulbyte/Downloads/veadotube-mini-linux-x64/veadotube-mini";
+			icon = "veado-display"; #can be a png path
+			categories = ["AudioVideo"];
+			terminal = false;
+		})
 		vim     
 		#  wget wineWowPackages.stable
 		# support 32-bit only
@@ -155,6 +213,16 @@
 		winetricks
 		# native wayland support (unstable)
 		wineWowPackages.waylandFull
+		v4l-utils # querying capture card exposed ports
+		xvkbd #x11 onscrean keyboard
+	];
+
+
+	programs.nix-ld.enable = true;
+		programs.nix-ld.libraries = with pkgs; [
+		# Add any missing dynamic libraries for unpackaged programs
+		# here, NOT in environment.systemPackages
+		glibc
 	];
 
 	systemd.services.lact = {
@@ -186,6 +254,9 @@
 			obs-vkcapture
 		];
 	};
+	# FOR VIRTUAL CAMERA SUPPORT
+	# boot.extraModulePackages = with config.boot.kernelPackages; [ v4l2loopback ];
+	# boot.kernelModules = [ "v4l2loopback" ];
 
 
 
