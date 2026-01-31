@@ -10,9 +10,6 @@
     [ (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
-  boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usbhid" "usb_storage" "sd_mod" ];
-  boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
@@ -35,23 +32,9 @@
   services.xserver.videoDrivers = [ "intel" ];
 
   hardware.enableAllFirmware = true; #new
-  hardware.cpu.intel.updateMicrocode = true; #lib.mkDefault;
-  hardware.graphics = {
-    enable = true;
-    extraPackages = with pkgs; [
-      # optional tooling {
-      intel-compute-runtime # OpenCL (NEO) + level ero for Arc/Xe
-      # required fro modern intel GPUs {
-      intel-media-driver # VA-API (iHD) userspace
-      vpl-gpu-rt # openVPL (QSV) runtime
-      # onevpl-intel-gpu # outdated
-      # }
-    ];
-  };
   environment.sessionVariables = {
     LIBVA_DRIVER_NAME = "iHD"; # prefer modern iHD backend
   };
   #services.xserver.extraGroups = ["video"]; #POTENTIAL
 
-  boot.kernelParams = [ "i915.force_probe=e20b" "xe.force_probe=e20b" ]; # NEW
 }

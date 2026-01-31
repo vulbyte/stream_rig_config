@@ -8,43 +8,19 @@
 	imports =
 	[ # Include the results of the hardware scan.
 		./hardware-configuration.nix
+		./networking-config.nix
+		./sound-config.nix
+		./kernel-config.nix
+		./gpu-config.nix
 		#./flakes/flatpaks.nix	
 	];
 
-	# SMB SERVER STUFF
-	services.gvfs.enable = true;
-	services.avahi = { # for airplay capture and smb
-	  enable = true;
-	  nssmdns4 = true; # Allows software to find .local devices
-	  publish = {
-	    enable = true;
-	    userServices = true;
-	  };
-	};
-
-	# users.users.vulbyte.extraGroups = [ "networkmanager" "wheel" "video" "render" ]; # NEW
-  	#boot.kernelParams = [ "i915.enable_guc=3" ];
 
 	# Bootloader.
+	# boot.loader.grub.devices.enable = true;
 	boot.loader.systemd-boot.enable = true;
 	boot.loader.efi.canTouchEfiVariables = true;
 
-	# Use latest kernel.
-	boot.kernelPackages = pkgs.linuxPackages_latest;
-
-	networking.hostName = "nixos"; # Define your hostname.
-	#networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-	boot.kernelModules = [
-	# get wifi drivers to work for Realtek Wifi RTL8852CE
-	"rtw89_8852ce"
-	];
-
-	# Configure network proxy if necessary
-	# networking.proxy.default = "http://user:password@proxy:port/";
-	# networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
-	# Enable networking
-	networking.networkmanager.enable = true;
 
 	# Set your time zone.
 	time.timeZone = "America/Vancouver";
@@ -86,31 +62,7 @@ services.displayManager.sddm.theme = "breeze";
 	# Enable CUPS to print documents.
 	services.printing.enable = true;
 
-	# Enable sound with pipewire.
-	# services.pulseaudio.enable = false;
-	security.rtkit.enable = true;
-	services.pipewire = {
-		enable = true;
-		alsa.enable = true;
-		alsa.support32Bit = true;
-		pulse.enable = true;
-		# If you want to use JACK applications, uncomment this
-		jack.enable = true;
 
-		# use the example session manager (no others are packaged yet so this is enabled by default,
-		# no need to redefine it in your config for now)
-		#media-session.enable = true;
-	};
-
-	# Define the permanent mount
-	fileSystems."/mnt/my_share" = {
-		device = "//192.168.1.178/vulbytesShare";
-		fsType = "cifs";
-		options = let
-		# These flags prevent the system from hanging if the server is offline
-		automount_opts = "x-systemd.automount,noauto,x-systemd.idle-timeout=60,x-systemd.device-timeout=5s,x-systemd.mount-timeout=5s";
-		in ["${automount_opts},credentials=/etc/nixos/smb-secrets.nix,uid=1000,gid=100,vers=3.0"];
-	};
 
 	# Enable touchpad support (enabled default in most desktopManager).
 	# services.xserver.libinput.enable = true;
@@ -225,25 +177,15 @@ services.displayManager.sddm.theme = "breeze";
 		glibc
 	];
 
-	systemd.services.lact = {
-		description = "intelGPU Control Daemon";
-		after = ["multi-user.target"];
-		wantedBy = ["multi-user.target"];
-		serviceConfig = {
-			ExecStart = "${pkgs.lact}/bin/lact daemon";
-		};
-		enable = true;
-	};
-
 	programs.obs-studio = {
 		enable = true;
 
 		# optional Nvidia hardware acceleration
-		package = (
-			pkgs.obs-studio.override {
-				cudaSupport = true;
-			}
-		);
+		# package = (
+		# 	pkgs.obs-studio.override {
+		# 		cudaSupport = true;
+		# 	}
+		# );
 
 		plugins = with pkgs.obs-studio-plugins; [
 			wlrobs
@@ -254,9 +196,6 @@ services.displayManager.sddm.theme = "breeze";
 			obs-vkcapture
 		];
 	};
-	# FOR VIRTUAL CAMERA SUPPORT
-	# boot.extraModulePackages = with config.boot.kernelPackages; [ v4l2loopback ];
-	# boot.kernelModules = [ "v4l2loopback" ];
 
 
 
@@ -272,12 +211,6 @@ services.displayManager.sddm.theme = "breeze";
 
 	# Enable the OpenSSH daemon.
 	# services.openssh.enable = true;
-
-	# Open ports in the firewall.
-	# networking.firewall.allowedTCPPorts = [ ... ];
-	# networking.firewall.allowedUDPPorts = [ ... ];
-	# Or disable the firewall altogether.
-	# networking.firewall.enable = false;
 
 	# This value determines the NixOS release from which the default
 	# settings for stateful data, like file locations and database versions

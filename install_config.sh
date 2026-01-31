@@ -50,9 +50,12 @@ HELPERS_FANCY_PRINT "Moving main config files..."
 # cp "~/stream_config_files/nix_config_files/hardware-configuration.nix" ${CONFIG_LOCATION}
 cp "/home/vulbyte/stream_rig_config/nix_config_files/configuration.nix" ${CONFIG_LOCATION}
 cp "/home/vulbyte/stream_rig_config/nix_config_files/hardware-configuration.nix" ${CONFIG_LOCATION}
+
+cp "/home/vulbyte/stream_rig_config/nix_config_files/gpu-config.nix" ${CONFIG_LOCATION}
+cp "/home/vulbyte/stream_rig_config/nix_config_files/networking-config.nix" ${CONFIG_LOCATION}
+cp "/home/vulbyte/stream_rig_config/nix_config_files/kernel-config.nix" ${CONFIG_LOCATION}
+cp "/home/vulbyte/stream_rig_config/nix_config_files/sound-config.nix" ${CONFIG_LOCATION}
 cp "/home/vulbyte/stream_rig_config/nix_config_files/smb-secrets.nix" ${CONFIG_LOCATION}
-
-
 
 HELPERS_FANCY_PRINT "files in location, all checks passed, attemptnig to build os";
 nixos-rebuild switch
