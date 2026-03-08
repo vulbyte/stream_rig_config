@@ -7,19 +7,43 @@
 { config, lib, pkgs, modulesPath, ... }:
 
 {
-	#boot.kernelParams = [ "i915.enable_guc=3" ];
-	boot.kernelParams = [ "i915.force_probe=e20b" "xe.force_probe=e20b" ]; # NEW
-	boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usbhid" "usb_storage" "sd_mod" ];
-	boot.initrd.kernelModules = [ "xe" ];
-	boot.kernelModules = [ 
-		"kvm-intel" 
-		"rtw89_8852ce" # get wifi drivers to work for Realtek Wifi RTL8852CE
-	];
-
 	# Use latest kernel.
 	boot.kernelPackages = pkgs.linuxPackages_latest;
 
+
+# 	  # 2. Tell the Kernel to use it
+# 	  boot.kernelParams = [
+# 	    "xe.force_probe=e20b"
+# 	    "video=DP-1:1920x1080@60D"                # The 'e' forces it to 'enabled'
+# 	  ];
+
+	# Ensure the EDID file is actually in the initrd so the driver sees it at boot
+	# boot.initrd.extraFiles."/lib/firmware/edid/1920x1080.bin".source = ./path/to/your/edid.bin;
+	boot.initrd.availableKernelModules = [ 
+		"ahci" 
+		"sd_mod" 
+		"usbhid" 
+		"usb_storage" 
+		"xhci_pci" 
+	];
+
+	boot.initrd.kernelModules = [ 
+		"xe" 
+		"mt7921e" 
+	];
+
+	boot.kernelModules = [ 
+		"kvm-intel"    # for intel gpu support
+		"rtw89_8852ce" # get wifi drivers to work for Realtek Wifi RTL8852CE
+		"v4l2loopback" # for obs virtual camera
+		"r8125"
+	];
+
+	boot.blacklistedKernelModules = [ "r8169" ];
+
 	# FOR VIRTUAL CAMERA SUPPORT with obs-studio
-	# boot.extraModulePackages = with config.boot.kernelPackages; [ v4l2loopback ];
-	# boot.kernelModules = [ "v4l2loopback" ];
+	boot.extraModulePackages = with config.boot.kernelPackages; [ 
+		r8125
+		v4l2loopback 
+	];
 }

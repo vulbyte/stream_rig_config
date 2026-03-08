@@ -56,6 +56,21 @@ cp "/home/vulbyte/stream_rig_config/nix_config_files/networking-config.nix" ${CO
 cp "/home/vulbyte/stream_rig_config/nix_config_files/kernel-config.nix" ${CONFIG_LOCATION}
 cp "/home/vulbyte/stream_rig_config/nix_config_files/sound-config.nix" ${CONFIG_LOCATION}
 cp "/home/vulbyte/stream_rig_config/nix_config_files/smb-secrets.nix" ${CONFIG_LOCATION}
+cp "/home/vulbyte/stream_rig_config/nix_config_files/vTubeStudio.nix" ${CONFIG_LOCATION}
+
+# hardware
+cp "/home/vulbyte/stream_rig_config/nix_config_files/hardware/intel_b580-12gb_config.nix" ${CONFIG_LOCATION}
+cp "/home/vulbyte/stream_rig_config/nix_config_files/hardware/tp-link_tx201_config.nix"   ${CONFIG_LOCATION}
+cp "/home/vulbyte/stream_rig_config/nix_config_files/hardware/tp-link_txe72e_config.nix"  ${CONFIG_LOCATION}
+
+# software
+cp "/home/vulbyte/stream_rig_config/nix_config_files/software/sunshine.nix" ${CONFIG_LOCATION}
+cp "/home/vulbyte/stream_rig_config/nix_config_files/software/firefox.nix" ${CONFIG_LOCATION}
+cp "/home/vulbyte/stream_rig_config/nix_config_files/software/obs-studio.nix" ${CONFIG_LOCATION}
+#cp "/home/vulbyte/stream_rig_config/nix_config_files/software/steam.nix" ${CONFIG_LOCATION}
+cp "/home/vulbyte/stream_rig_config/nix_config_files/software/wine.nix" ${CONFIG_LOCATION}
+cp "/home/vulbyte/stream_rig_config/nix_config_files/software/VTubeStudio.nix" ${CONFIG_LOCATION}
+
 
 HELPERS_FANCY_PRINT "files in location, all checks passed, attemptnig to build os";
 nixos-rebuild switch
