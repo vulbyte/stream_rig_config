@@ -18,6 +18,7 @@
 	./intel_b580-12gb_config.nix
 	#software
 	./firefox.nix
+	./obs-airplay.nix
 	./obs-studio.nix
 	./sunshine.nix
 	#./steam.nix
@@ -28,6 +29,7 @@
     systemd.tmpfiles.rules = [
       "L /var/lib/systemd/linger/vulbyte - - - - /dev/null"
     ];
+
 
     # Bootloader.
     # boot.loader.grub.devices.enable = true;

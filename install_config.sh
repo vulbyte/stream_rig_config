@@ -66,6 +66,7 @@ cp "/home/vulbyte/stream_rig_config/nix_config_files/hardware/tp-link_txe72e_con
 # software
 cp "/home/vulbyte/stream_rig_config/nix_config_files/software/sunshine.nix" ${CONFIG_LOCATION}
 cp "/home/vulbyte/stream_rig_config/nix_config_files/software/firefox.nix" ${CONFIG_LOCATION}
+cp "/home/vulbyte/stream_rig_config/nix_config_files/software/obs-airplay.nix" ${CONFIG_LOCATION}
 cp "/home/vulbyte/stream_rig_config/nix_config_files/software/obs-studio.nix" ${CONFIG_LOCATION}
 #cp "/home/vulbyte/stream_rig_config/nix_config_files/software/steam.nix" ${CONFIG_LOCATION}
 cp "/home/vulbyte/stream_rig_config/nix_config_files/software/wine.nix" ${CONFIG_LOCATION}

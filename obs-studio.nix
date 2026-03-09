@@ -2,24 +2,6 @@
 { config, lib, pkgs, ... }:
 
 {
-	# for obs-airplay
-	networking.firewall = {
-	  allowedTCPPorts = [ 7100 7000 7001 49152 49153 49154 ];
-	  allowedUDPPorts = [ 7100 7000 7001 5353 49152 49153 49154 ];
-	  allowedTCPPortRanges = [ { from = 32768; to = 61000; } ];
-	  allowedUDPPortRanges = [ { from = 32768; to = 61000; } ];
-	};
-
-	services.avahi = {
-	  enable = true;
-	  nssmdns4 = true;
-	  publish = {
-	    enable = true;
-	    addresses = true;
-	    workstation = true;
-	  };
-	};
-
     programs.obs-studio = {
         enable = true;
 
