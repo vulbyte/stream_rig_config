@@ -27,15 +27,14 @@
 		"xhci_pci" 
 	];
 
-	boot.initrd.kernelModules = [ 
-		"xe" 
-		"mt7921e" 
-	];
+#	boot.initrd.kernelModules = [ 
+#		"mt7921e"  # THIS IS NO LONGER ADDED
+#	]
 
 	boot.kernelModules = [ 
-		"kvm-intel"    # for intel gpu support
+		# "kvm-intel"    # for intel gpu support
 		"rtw89_8852ce" # get wifi drivers to work for Realtek Wifi RTL8852CE
-		"v4l2loopback" # for obs virtual camera
+		# "v4l2loopback" # for obs virtual camera
 		"r8125"
 	];
 

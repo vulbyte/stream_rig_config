@@ -2,6 +2,11 @@
 { config, lib, pkgs, ... }:
 
 {
+	boot.kernelModules = [ 
+		# "kvm-intel"    # for intel gpu support
+		"v4l2loopback" # for obs virtual camera
+	];
+
 	# for obs-airplay
 	networking.firewall = {
 	  allowedTCPPorts = [ 7100 7000 7001 49152 49153 49154 ];
@@ -31,12 +36,12 @@
         # );
 
         plugins = with pkgs.obs-studio-plugins; [
-            wlrobs
             obs-backgroundremoval
             obs-pipewire-audio-capture
             # obs-vaapi #optional AMD hardware acceleration
             obs-gstreamer
             obs-vkcapture
+            wlrobs
         ];
     };
 

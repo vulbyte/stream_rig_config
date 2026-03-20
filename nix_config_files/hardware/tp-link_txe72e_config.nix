@@ -1,14 +1,17 @@
 { config, lib, pkgs, ... }:
 
 {
-  # 1. Enable WiFi and Bluetooth support
-  networking.wireless.iwd.enable = true; # IWD is faster/more modern than wpa_supplicant for WiFi 6E
+    #bluetooth
+    hardware.bluetooth.powerOnBoot = true;
   hardware.bluetooth.enable = true;
   hardware.bluetooth.settings = {
     General = {
       Experimental = true; # Enables better battery reporting and LE Audio
     };
   };
+
+  # 1. Enable WiFi and Bluetooth support
+  networking.wireless.iwd.enable = true; # IWD is faster/more modern than wpa_supplicant for WiFi 6E
 
   # 2. Intel AX210 Specific Tweaks
   boot.kernelModules = [ "iwlwifi" ];

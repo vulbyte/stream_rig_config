@@ -4,46 +4,28 @@
 { config, lib, pkgs, modulesPath, ... }:
 
 {
-  # may help if FFmpg/vaapi/qsv init fails
-  hardware.enableAllFirmware = true; 
-  hardware.enableRedistributableFirmware = true;
-  imports =
-    [ (modulesPath + "/installer/scan/not-detected.nix")
-    ];
+  imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
-    #bluetooth
-    hardware.bluetooth.enable = true;
-    hardware.bluetooth.powerOnBoot = true;
-
-    
-
-  boot.extraModulePackages = [ ];
-
-  hardware.firmware = [ pkgs.linux-firmware ];
-
-  # Auto-mount smb share
-  fileSystems."/" =
-    { device = "/dev/disk/by-uuid/f54c584c-e525-42b7-9d36-ba4156f27a73";
-      fsType = "ext4";
-    };
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/39CC-3D64";
-      fsType = "vfat";
-      options = [ "fmask=0077" "dmask=0077" ];
-    };
-  swapDevices =
-    [ { device = "/dev/disk/by-uuid/fe95212b-92fc-4b1d-bba0-cada1a0242a4"; } ];
-
-  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-
-  hardware.graphics = {
-    enable = true;
-    extraPackages = with pkgs; [
-      intel-media-driver # General VA-API
-      vpl-gpu-rt          # Essential for QSV on Battlemage/B580
-      intel-compute-runtime # Optional: for OpenCL support
-    ];
+  # --- ADD THESE BACK ---
+  fileSystems."/" = { 
+    device = "/dev/disk/by-uuid/f54c584c-e525-42b7-9d36-ba4156f27a73";
+    fsType = "ext4";
   };
 
+  fileSystems."/boot" = { 
+    device = "/dev/disk/by-uuid/39CC-3D64";
+    fsType = "vfat";
+    options = [ "fmask=0077" "dmask=0077" ];
+  };
 
+  swapDevices = [ 
+    { device = "/dev/disk/by-uuid/fe95212b-92fc-4b1d-bba0-cada1a0242a4"; } 
+  ];
+  # -----------------------
+
+  hardware.enableAllFirmware = true; 
+  hardware.enableRedistributableFirmware = true;
+  boot.extraModulePackages = [ ];
+  hardware.firmware = [ pkgs.linux-firmware ];
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 }

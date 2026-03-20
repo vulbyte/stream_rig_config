@@ -5,4 +5,5 @@
 { config, lib, pkgs, modulesPath, ... }:
 
 {
+	# DO NOT ADD HERE, CREATE A SPECIFIC FILE IN HARDWARE FOLDER
 }

@@ -1,6 +1,14 @@
 { config, pkgs, ... }:
 
 {
+	boot.initrd.kernelModules = [ 
+		"xe" 
+	];
+
+	boot.kernelModules = [ 
+		"kvm-intel"    # for intel gpu support
+	];
+
 	systemd.services.lact = {
 		description = "intelGPU Control Daemon";
 		after = ["multi-user.target"];

@@ -4,25 +4,42 @@
 
 { config, pkgs, lib, ... }:
 
+#needed for vtubestudio to allow the launch
+# let
+#   # Import the file and immediately give it the current pkgs
+#   vtsLauncher = import ./vts-launcher.nix { inherit pkgs; };
+# in
 {
-    imports =
-    [ # Include the results of the hardware scan.
-        ./hardware-configuration.nix
-        ./networking-config.nix
-        ./sound-config.nix
-        ./kernel-config.nix
-        ./gpu-config.nix
+    imports = [ # Include the results of the hardware scan.
 	#hardware
-	./tp-link_tx201_config.nix
-	./tp-link_txe72e_config.nix
-	./intel_b580-12gb_config.nix
+			./akasis-ac_vs2583.nix
+			./tp-link_tx201_config.nix
+			./tp-link_txe72e_config.nix
+			./intel_b580-12gb_config.nix
+			# ./kinect_v2.nix
 	#software
-	./firefox.nix
-	./obs-airplay.nix
-	./obs-studio.nix
-	./sunshine.nix
-	#./steam.nix
-	./wine.nix
+			./firefox.nix
+			./godot.nix
+			./mediapipe_tracker.nix
+			./obs-airplay.nix
+			./obs-studio.nix
+			./OpenSeeFace.nix
+			#./steam.nix
+			./sunshine.nix
+			#./vTubeStudio.nix
+			./veadotubemini.nix
+			./virtual_keyboard.nix
+			./wine.nix
+	# misc
+			# ./apfs.nix 
+			# ./configuration.nix
+			# ./gpu-config.nix DEPRECIATED
+			./hardware-configuration.nix
+			./kernel-config.nix
+			# ./networking-config.nix DEPRECIATED
+			# ./smb-secrets.nix DO NOT RUN THIS
+			./sound-config.nix
+			./unraidServerA.nix
     ];
 
     # This allows 'vulbyte' services to start on boot without a login
@@ -45,50 +62,9 @@
 
     # Enable the X11 windowing system.
     # You can disable this if you're only using the Wayland session.
-    services.xserver.enable = true;
+    # services.xserver.enable = true;
     # Enable the KDE Plasma Desktop Environment.
     services.desktopManager.plasma6.enable = true;
-
-
-    # KEYBOARD 
-    # This enables the input method framework for the system
-    i18n.inputMethod = {
-      type = "maliit";
-    };
-
-    # This helps if SDDM is defaulting to a theme that doesn't support the keyboard toggle
-    services.displayManager = {
-        autoLogin = {
-            enable = true;
-            user = "vulbyte";
-        }; # FIXED: Added semicolon
-        sddm = { # FIXED: Typo was 'ssdm'
-          theme = "breeze";
-          enable = true;
-          wayland.enable = true; # Recommended for Plasma 6
-          # user = "vulbyte"; # Removed as it's redundant/invalid here
-          settings = {
-            General = {
-              InputMethod = "qtvirtualkeyboard";
-            };
-          };
-        };
-    };
-
-    # 3. The "Lock on Startup" Script
-      # This runs as soon as your KDE session starts
-      systemd.user.services.lock-on-startup = {
-        description = "Lock the screen immediately after auto-login";
-        wantedBy = [ "plasma-workspace-wayland.target" ];
-        after = [ "plasma-workspace-wayland.target" ];
-        serviceConfig = {
-          Type = "oneshot";
-          # This command tells KDE to lock the session
-          ExecStart = "${pkgs.kdePackages.plasma-workspace}/bin/loginctl lock-session";
-        };
-      };
-
-
 
 
     # Configure keymap in X11
@@ -98,19 +74,17 @@
     };
 
     # Enable CUPS to print documents.
-    services.printing.enable = true;
-
-
+    # services.printing.enable = true;
 
     # Enable touchpad support (enabled default in most desktopManager).
-    # services.xserver.libinput.enable = true;
+    services.libinput.enable = true;
 
     # Define a user account. Don't forget to set a password with ‘passwd’.
     users.users.vulbyte = {
-        isNormalUser = true;
-        description = "vulbyte";
-        extraGroups = [ "networkmanager" "wheel" ];
-        packages = with pkgs; [];
+	isNormalUser = true;
+	description = "vulbyte";
+	extraGroups = [ "networkmanager" "wheel" "video" "render" "audio" ]; # Added render and audio
+	packages = with pkgs; [];
     };
 
     # Allow unfree packages
@@ -119,56 +93,48 @@
     # List packages installed in system profile. To search, run:
     # $ nix search wget
     environment.systemPackages = with pkgs; [
-          #onscreen kbd testing
-        onboard
-          # For Mobile/Touch Interfaces (Phosh, Plasma Mobile)
-        kdePackages.qtvirtualkeyboard  # This is the critical one for SDDM
-        maliit-keyboard
-        maliit-framework
-
         cifs-utils 
-        discord # for collabs and stuff
-        fastfetch
+        # discord # discord audio keeps microresetting disconnecting audio, meaning we should use the web version instead
+	fastfetch
         freetype
         git
         glibc
         harfbuzz
         hyfetch # depends on fastfetch
         lact
+	usbutils
         kdePackages.kate
         kdePackages.qtvirtualkeyboard
-        maliit-keyboard
-        maliit-framework
         mpv
+	nodejs
         neovim
         pciutils 
+	#python3
         qpwgraph
         stow # used to propigate config files
-        steam-run # used to launch some applications like veado
-        (makeDesktopItem {
-            name = "veadotube-mini";
-            desktopName = "veadotube mini";
-            exec = "steam-run /home/vulbyte/Downloads/veadotube-mini-linux-x64/veadotube-mini";
-            icon = "veado-display"; #can be a png path
-            categories = ["AudioVideo"];
-            terminal = false;
-        })
         vim     
         v4l-utils # querying capture card exposed ports
+	#vtsLauncher # for vTubeStudio
         xvkbd #x11 onscrean keyboard
     ];
+
+	# environment.systemPackages = with pkgs; [
+	#   # ... other system packages
+	#   (python3.withPackages (python-pkgs: with python-pkgs; [
+	#     pandas
+	#     # Add other packages here
+	#   ]))
+	# ];
 
     # Important: Ensure you have 3D graphics enabled
     # hardware.graphics.enable = true;
     # hardware.graphics.enable32Bit = true;
-
-
-    programs.nix-ld.enable = true;
-        programs.nix-ld.libraries = with pkgs; [
-        # Add any missing dynamic libraries for unpackaged programs
-        # here, NOT in environment.systemPackages
-        glibc
-    ];
+    #programs.nix-ld.enable = true;
+    #    programs.nix-ld.libraries = with pkgs; [
+    #    # Add any missing dynamic libraries for unpackaged programs
+    #    # here, NOT in environment.systemPackages
+    #    glibc
+    #];
 
     # List services that you want to enable:
 
